@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MURDAVERSE - Media Pembelajaran Aksara Murda Interaktif</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Noto Sans Javanese -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Javanese:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            jawa: {
+              wood: '#3E2723',
+              darkwood: '#2C1B17',
+              cream: '#FFF8E7',
+              softcream: '#F5E6CA',
+              gold: '#D4AF37',
+              goldlight: '#F3E5AB',
+              green: '#2E7D32',
+              red: '#C62828',
+              accent: '#8D6E63'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            aksara: ['"Noto Sans Javanese"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Batik Pattern Background Overlay */
+    .bg-batik-pattern {
+      background-color: #FAF5EF;
+      background-image: radial-gradient(#D4AF37 0.75px, transparent 0.75px), radial-gradient(#3E2723 0.75px, #FAF5EF 0.75px);
+      background-size: 30px 30px;
+      background-position: 0 0, 15px 15px;
+      background-opacity: 0.05;
+    }
+    
+    .dark .bg-batik-pattern {
+      background-color: #1A120B;
+      background-image: radial-gradient(#D4AF37 0.75px, transparent 0.75px), radial-gradient(#8D6E63 0.75px, #1A120B 0.75px);
+      background-size: 30px 30px;
+      background-position: 0 0, 15px 15px;
+    }
+
+    /* Glassmorphism Effect */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+    }
+    .dark .glass-card {
+      background: rgba(44, 27, 23, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    /* Custom Animations */
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.4); }
+      50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.8); }
+    }
+    .pulse-glow { animation: pulseGlow 2.5s infinite; }
+
+    @keyframes floatMascot {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    .animate-float { animation: floatMascot 3.5s ease-in-out infinite; }
+
+    /* Aksara Javanese Text Enhancement */
+    .aksara-text {
+      font-family: 'Noto Sans Javanese', serif;
+      line-height: 1.6;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #F5E6CA; }
+    .dark ::-webkit-scrollbar-track { background: #2C1B17; }
+    ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3E2723; }
+  </style>
+</head>
+
+<body class="bg-batik-pattern text-slate-800 dark:text-amber-50 min-h-screen flex flex-col font-sans transition-colors duration-300 antialiased selection:bg-jawa-gold selection:text-jawa-darkwood">
+
+  <header id="top-navbar" class="sticky top-0 z-40 bg-white/90 dark:bg-jawa-darkwood/90 backdrop-blur-md border-b border-jawa-gold/30 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('dashboard')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-jawa-wood via-jawa-gold to-amber-300 flex items-center justify-center shadow-md text-white font-bold text-xl font-aksara border border-amber-200">
+          ꦟ
+        </div>
+        <div>
+          <span class="text-xl font-extrabold bg-gradient-to-r from-jawa-wood via-amber-800 to-jawa-gold dark:from-amber-200 dark:via-jawa-gold dark:to-amber-400 bg-clip-text text-transparent tracking-wide">MURDAVERSE</span>
+          <span class="block text-[10px] uppercase tracking-wider font-semibold text-amber-700 dark:text-amber-300 -mt-1">Aksara Murda SMK XI</span>
+        </div>
+      </div>
+
+      <!-- Quick Stats Top Bar (Desktop) -->
+      <div id="quick-stats-bar" class="hidden md:flex items-center space-x-6 bg-jawa-cream dark:bg-jawa-wood/60 px-4 py-1.5 rounded-full border border-jawa-gold/30 text-xs font-semibold">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-medal text-jawa-gold text-base"></i>
+          <span>Level <span id="nav-user-level" class="text-amber-700 dark:text-amber-300 font-bold">1 (Purwa)</span></span>
+        </div>
+        <div class="w-px h-4 bg-jawa-gold/40"></div>
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-bolt text-amber-500 text-base"></i>
+          <span><span id="nav-user-xp" class="text-amber-700 dark:text-amber-300 font-bold">0</span> XP</span>
+        </div>
+        <div class="w-px h-4 bg-jawa-gold/40"></div>
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-fire text-orange-500 text-base"></i>
+          <span><span id="nav-user-streak" class="text-orange-600 dark:text-orange-300 font-bold">1</span> Hari Streak</span>
+        </div>
+      </div>
+
+      <!-- Header Action Controls -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <!-- Audio FX Toggle -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-slate-700 transition" title="Suara / Sound Effects">
+          <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+        </button>
+        <!-- Dark Mode Toggle -->
+        <button id="theme-toggle-btn" onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-slate-700 transition" title="Ganti Mode Gelap/Terang">
+          <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+        <!-- Teacher Portal Button -->
+        <button onclick="openGuruAuthModal()" class="px-3 py-1.5 rounded-xl bg-amber-800 text-amber-50 hover:bg-jawa-wood text-xs font-semibold flex items-center space-x-1.5 transition shadow">
+          <i class="fa-solid fa-user-tie"></i>
+          <span class="hidden sm:inline">Mode Guru</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER WITH SPA ROUTING -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-12">
+
+    <section id="page-splash" class="min-h-[80vh] flex flex-col items-center justify-center text-center py-10 relative">
+      <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+        <span class="font-aksara text-9xl text-jawa-wood dark:text-jawa-gold">ꦑꦓꦟꦡꦯꦦꦨꦗ</span>
+      </div>
+
+      <div class="relative z-10 glass-card p-8 sm:p-12 rounded-3xl max-w-2xl w-full shadow-2xl border-2 border-jawa-gold/40 text-center">
+        <!-- Logo Icon -->
+        <div class="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-tr from-jawa-wood via-jawa-gold to-amber-300 flex items-center justify-center text-white text-5xl font-aksara shadow-xl pulse-glow border-2 border-amber-200">
+          ꦟ
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-jawa-wood dark:text-amber-200 mb-2 font-sans">
+          MURDAVERSE
+        </h1>
+        <p class="text-base sm:text-lg font-semibold text-amber-800 dark:text-amber-300 mb-4">
+          Media Pembelajaran Aksara Murda Interaktif
+        </p>
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-8 max-w-md mx-auto leading-relaxed">
+          Wilujeng sumping! Sugeng sinau Aksara Murda kanthi cara kang luwih seru, interaktif, lan migunani kanggo siswa SMK Kelas XI.
+        </p>
+
+        <!-- Input Student Name on First Login -->
+        <div class="mb-6 max-w-xs mx-auto">
+          <label for="input-student-name" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Nama Siswa / Sinuwun</label>
+          <input type="text" id="input-student-name" placeholder="Masukkan Nama Lengkap" class="w-full px-4 py-3 rounded-xl border border-jawa-gold/40 bg-white dark:bg-slate-800 text-center font-semibold text-slate-800 dark:text-white focus:ring-2 focus:ring-jawa-gold focus:outline-none shadow-inner">
+        </div>
+
+        <button onclick="startLearning()" class="w-full max-w-xs py-4 px-8 rounded-2xl bg-gradient-to-r from-jawa-wood via-amber-800 to-jawa-gold hover:from-amber-900 hover:to-amber-700 text-white font-bold text-lg shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 flex items-center justify-center space-x-3 mx-auto border border-amber-300/40">
+          <span>MULAI BELAJAR</span>
+          <i class="fa-solid fa-circle-play text-xl"></i>
+        </button>
+      </div>
+    </section>
+
+    <section id="page-dashboard" class="hidden space-y-8">
+      
+      <!-- Welcome & User Hero Banner -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-amber-900/10 via-jawa-cream to-amber-100/50 dark:from-jawa-wood dark:via-slate-900 dark:to-amber-950/40 border border-jawa-gold/40 shadow-lg relative overflow-hidden">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+          
+          <div class="flex items-center space-x-4 sm:space-x-6">
+            <div class="relative">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr from-jawa-gold to-amber-700 p-1 shadow-md">
+                <div class="w-full h-full bg-white dark:bg-slate-900 rounded-xl flex items-center justify-center text-4xl text-jawa-wood dark:text-jawa-gold font-aksara font-bold">
+                  ꦟ
+                </div>
+              </div>
+              <span class="absolute -bottom-2 -right-2 bg-jawa-gold text-jawa-darkwood font-extrabold text-xs px-2 py-0.5 rounded-full border border-white shadow" id="dash-badge-level-tag">Lvl 1</span>
+            </div>
+
+            <div>
+              <div class="flex items-center space-x-2">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-jawa-wood dark:text-amber-200" id="dash-user-name">Siswa SMK</h2>
+                <button onclick="editStudentName()" class="text-xs text-amber-600 hover:text-amber-800 dark:text-amber-400" title="Ubah Nama"><i class="fa-solid fa-pen"></i></button>
+              </div>
+              <p class="text-xs sm:text-sm font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-2 mt-1">
+                <span>Tingkat: <span id="dash-level-title" class="font-bold">Purwa</span></span>
+                <span>•</span>
+                <span>SMK Kelas XI Bahasa Jawa</span>
+              </p>
+              <!-- Progress Bar XP -->
+              <div class="mt-3 w-48 sm:w-64">
+                <div class="flex justify-between text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                  <span>XP Progress</span>
+                  <span id="dash-xp-text">0 / 100 XP</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden p-0.5 border border-jawa-gold/30">
+                  <div id="dash-xp-bar" class="bg-gradient-to-r from-amber-500 to-jawa-gold h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Quick Study Badge -->
+          <div class="flex flex-wrap gap-3 items-center justify-center md:justify-end">
+            <button onclick="navigateTo('belajar-cepat')" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center space-x-2">
+              <i class="fa-solid fa-stopwatch text-base"></i>
+              <span>Belajar Cepat (5 Mnt)</span>
+            </button>
+            <button onclick="navigateTo('kuis')" class="px-4 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm shadow-md transition flex items-center space-x-2">
+              <i class="fa-solid fa-trophy text-base"></i>
+              <span>Kuis Akhir</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MASCOT CORNER ("Ki Murda") -->
+      <div class="glass-card p-4 sm:p-5 rounded-2xl border-l-4 border-l-jawa-gold flex items-center space-x-4 shadow-sm bg-amber-50/50 dark:bg-jawa-wood/30">
+        <div class="w-14 h-14 rounded-full bg-amber-200 dark:bg-amber-900/60 flex-shrink-0 flex items-center justify-center text-2xl animate-float border border-jawa-gold/50">
+          🧔🏽‍♂️
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-jawa-wood dark:text-amber-300 flex items-center space-x-1">
+            <span>Ki Murda (Maskot)</span>
+            <span class="text-[10px] bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 px-2 py-0.5 rounded-full">Saran Hari Ini</span>
+          </h4>
+          <p id="mascot-dialogue" class="text-xs sm:text-sm text-slate-700 dark:text-amber-100/90 italic mt-0.5">
+            "Sugeng rawuh! Aja wedi salah nalika sinau Aksara Murda. Saben langkah nambah kapinteran!"
+          </p>
+        </div>
+      </div>
+
+      <!-- MAIN MENU GRID (8 Cards) -->
+      <div>
+        <h3 class="text-xl font-bold text-jawa-wood dark:text-amber-200 mb-4 flex items-center space-x-2">
+          <i class="fa-solid fa-compass text-jawa-gold"></i>
+          <span>Menu Utama Pembelajaran</span>
+        </h3>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          
+          <!-- Card 1: Kenali Murda -->
+          <div onclick="navigateTo('materi')" class="glass-card p-5 rounded-2xl hover:border-jawa-gold cursor-pointer transition transform hover:-translate-y-1 shadow-sm hover:shadow-md flex flex-col items-center text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+              <i class="fa-solid fa-book-open-reader"></i>
+            </div>
+            <h4 class="font-bold text-sm sm:text-base text-slate-800 dark:text-amber-100">Kenali Murda</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Pengertian, fungsi & aturan penggunaan</p>
+          </div>
+
+          <!-- Card 2: Galeri Aksara -->
+          <div onclick="navigateTo('galeri')" class="glass-card p-5 rounded-2xl hover:border-jawa-gold cursor-pointer transition transform hover:-translate-y-1 shadow-sm hover:shadow-md flex flex-col items-center text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+              <i class="fa-solid fa-icons"></i>
+            </div>
+            <h4 class="font-bold text-sm sm:text-base text-slate-800 dark:text-amber-100">Galeri Aksara</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Kartu visual 8 Aksara Murda & Pasangan</p>
+          </div>
+
+          <!-- Card 3: Belajar Penggunaan -->
+          <div onclick="navigateTo('materi-aturan')" class="glass-card p-5 rounded-2xl hover:border-jawa-gold cursor-pointer transition transform hover:-translate-y-1 shadow-sm hover:shadow-md flex flex-col items-center text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+              <i class="fa-solid fa-pen-nib"></i>
+            </div>
+            <h4 class="font-bold text-sm sm:text-base text-slate-800 dark:text-amber-100">Aturan Nulis</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Tata cara nulis nama, gelar & papan</p>
+          </div>
+
+          <!-- Card 4: Misi Games -->
+          <div onclick="navigateTo('misi')" class="glass-card p-5 rounded-2xl hover:border-jawa-gold cursor-pointer transition transform hover:-translate-y-1 shadow-sm hover:shadow-md flex flex-col items-center text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+              <i class="fa-solid fa-gamepad"></i>
+            </div>
+            <h4 class="font-bold text-sm sm:text-base text-slate-800 dark:text-amber-100">Misi Interaktif</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">4 Permainan tantangan berhadiah XP</p>
+          </div>
+
+          <!-- Card 5: Latihan -->
+          <div onclick="navigateTo('latihan')" class="glass-card p-5 rounded-2xl hover:border-jawa-gold cursor-pointer transition transform hover:-translate-y-1 shadow-sm hover:shadow-md flex flex-col items-center text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+              <i class="fa-solid fa-list-check"></i>
+            </div>
+            <h4 class="font-bold text-sm sm:text-base text-slate-800 dark:text-amber-100">Latihan Soal</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">15 Soal interaktif latihan mandiri</p>
+          </div>
+
+          <!-- Card 6: Kuis Akhir -->
+          <div onclick="navigateTo('kuis')" class="glass-card p-5 rounded-2xl hover:border-jawa-gold cursor-pointer transition transform hover:-translate-y-1 shadow-sm hover:shadow-md flex flex-col items-center text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h4 class="font-bold text-sm sm:text-base text-slate-800 dark:text-amber-100">Kuis Akhir</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">20 Soal ujian ber-timer & Sertifikat</p>
+          </div>
+
+          <!-- Card 7: Papan Peringkat -->
+          <div onclick="navigateTo('leaderboard')" class="glass-card p-5 rounded-2xl hover:border-jawa-gold cursor-pointer transition transform hover:-translate-y-1 shadow-sm hover:shadow-md flex flex-col items-center text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h4 class="font-bold text-sm sm:text-base text-slate-800 dark:text-amber-100">Papan Peringkat</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Peringkat XP tertinggi kelas</p>
+          </div>
+
+          <!-- Card 8: Profil & Badge -->
+          <div onclick="navigateTo('profil')" class="glass-card p-5 rounded-2xl hover:border-jawa-gold cursor-pointer transition transform hover:-translate-y-1 shadow-sm hover:shadow-md flex flex-col items-center text-center group">
+            <div class="w-14 h-14 rounded-2xl bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition">
+              <i class="fa-solid fa-award"></i>
+            </div>
+            <h4 class="font-bold text-sm sm:text-base text-slate-800 dark:text-amber-100">Profil & Lencana</h4>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Statistik & pencapaian siswa</p>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <section id="page-materi" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-jawa-gold/30 pb-4">
+        <button onclick="navigateTo('dashboard')" class="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
+        </button>
+        <h2 class="text-2xl font-extrabold text-jawa-wood dark:text-amber-200">Materi Aksara Murda</h2>
+        <div></div>
+      </div>
+
+      <!-- Cards Grid Materi -->
+      <div class="grid md:grid-cols-2 gap-6">
+        
+        <!-- Card Pengertian -->
+        <div class="glass-card p-6 rounded-3xl border-l-4 border-l-jawa-gold space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 flex items-center justify-center font-bold text-lg">
+            1
+          </div>
+          <h3 class="text-lg font-bold text-jawa-wood dark:text-amber-200">Pengertian Aksara Murda</h3>
+          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <strong>Aksara Murda</strong> minangka salah sawijining jinis aksara ing tata tulis Aksara Jawa kang fungse meh padha karo <strong>Huruf Kapital (Huruf Besar)</strong> ing abjad Latin. Tembung <em>"Murda"</em> asale saka basa Sansekerta kang tegese <strong>"Sirah" (Kepala)</strong> utawa <strong>"Puncak"</strong>.
+          </p>
+        </div>
+
+        <!-- Card Fungsi -->
+        <div class="glass-card p-6 rounded-3xl border-l-4 border-l-emerald-600 space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold text-lg">
+            2
+          </div>
+          <h3 class="text-lg font-bold text-jawa-wood dark:text-amber-200">Fungsi lan Kegunaan</h3>
+          <ul class="text-sm text-slate-700 dark:text-slate-300 space-y-2 list-disc list-inside">
+            <li>Nulis <strong>nama wong/tokoh</strong> kang dihormati (conto: Raden Ajeng Kartini).</li>
+            <li>Nulis <strong>gelar / pangkat / jabatan</strong> (conto: Patih, Prabu, Presiden).</li>
+            <li>Nulis <strong>nama papan panggonan / kutha / negara</strong> (conto: Surakarta, Indonesia).</li>
+            <li>Nulis <strong>nama lembaga, instansi, utawa organisasi</strong> (conto: SMK Negeri 1).</li>
+          </ul>
+        </div>
+
+        <!-- Card Aturan Penulisan -->
+        <div class="glass-card p-6 rounded-3xl border-l-4 border-l-blue-600 space-y-3 md:col-span-2">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 flex items-center justify-center font-bold text-lg">
+            3
+          </div>
+          <h3 class="text-lg font-bold text-jawa-wood dark:text-amber-200">Aturan Utama Penggunaan Aksara Murda</h3>
+          
+          <div class="grid sm:grid-cols-3 gap-4 text-xs sm:text-sm pt-2">
+            <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+              <h4 class="font-bold text-amber-700 dark:text-amber-400 mb-1">Cukup Siji saben Tembung</h4>
+              <p class="text-slate-600 dark:text-slate-300">Ing sawijining tembung (kata), aksara Murda cukup ditulis <strong>siji wae</strong> ing aksara paling ngarep kang nduweni wujud Murda.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+              <h4 class="font-bold text-amber-700 dark:text-amber-400 mb-1">Yen Ngarep Ora Ana Murda</h4>
+              <p class="text-slate-600 dark:text-slate-300">Yen aksara pisanan ora nduweni wujud Murda, mula digoleki ing aksara kaping loro utawa sabanjure.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+              <h4 class="font-bold text-amber-700 dark:text-amber-400 mb-1">Ora Kena Dadi Mati (Mangan)</h4>
+              <p class="text-slate-600 dark:text-slate-300">Aksara Murda <strong>ora kena dadi aksara mati / dadi pasangan mati</strong> ing pungkasan tembung kajaba manggon dadi pasangan.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Perbandingan Nglegena vs Murda -->
+        <div class="glass-card p-6 rounded-3xl border-l-4 border-l-purple-600 space-y-3 md:col-span-2">
+          <h3 class="text-lg font-bold text-jawa-wood dark:text-amber-200 flex items-center gap-2">
+            <i class="fa-solid fa-code-compare text-purple-600"></i>
+            <span>Bentenipun Aksara Nglegena lan Aksara Murda</span>
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs sm:text-sm text-left text-slate-700 dark:text-slate-300">
+              <thead class="bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 font-bold">
+                <tr>
+                  <th class="p-3">Wanda / Bunyi</th>
+                  <th class="p-3">Aksara Nglegena (Biasa)</th>
+                  <th class="p-3">Aksara Murda (Kapital)</th>
+                  <th class="p-3">Contoh Tembung</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                <tr>
+                  <td class="p-3 font-semibold">Ka</td>
+                  <td class="p-3 font-aksara text-lg">ꦏ</td>
+                  <td class="p-3 font-aksara text-2xl font-bold text-amber-700 dark:text-amber-300">ꦑ</td>
+                  <td class="p-3">Kartini → <span class="font-aksara text-base">ꦑꦂꦠꦶꦤꦶ</span></td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-semibold">Na / Nya</td>
+                  <td class="p-3 font-aksara text-lg">ꦤ</td>
+                  <td class="p-3 font-aksara text-2xl font-bold text-amber-700 dark:text-amber-300">ꦟ</td>
+                  <td class="p-3">Nawawi → <span class="font-aksara text-base">ꦟꦮꦮꦶ</span></td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-semibold">Ta</td>
+                  <td class="p-3 font-aksara text-lg">ꦠ</td>
+                  <td class="p-3 font-aksara text-2xl font-bold text-amber-700 dark:text-amber-300">ꦡ</td>
+                  <td class="p-3">Timbul → <span class="font-aksara text-base">ꦡꦶꦩ꧀ꦧꦸꦭ꧀</span></td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-semibold">Sa</td>
+                  <td class="p-3 font-aksara text-lg">ꦯ</td>
+                  <td class="p-3 font-aksara text-2xl font-bold text-amber-700 dark:text-amber-300">ꦯ</td>
+                  <td class="p-3">Surakarta → <span class="font-aksara text-base">ꦯꦸꦫꦏꦂꦠ</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="text-center pt-4">
+        <button onclick="addXP(15, 'Membaca Materi Murda'); navigateTo('galeri');" class="px-6 py-3 rounded-2xl bg-jawa-gold text-jawa-darkwood font-extrabold shadow-md hover:bg-amber-400 transition">
+          Selesai Membaca (+15 XP) & Lanjut ke Galeri Aksara →
+        </button>
+      </div>
+    </section>
+
+    <section id="page-galeri" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-jawa-gold/30 pb-4">
+        <button onclick="navigateTo('dashboard')" class="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Kembali
+        </button>
+        <h2 class="text-2xl font-extrabold text-jawa-wood dark:text-amber-200">Galeri 8 Aksara Murda</h2>
+        <div></div>
+      </div>
+
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        Klik saben kartu aksara ing ngisor iki kanggo ngrungokake unine, ndeleng wujud pasangane, lan conto penggunaane.
+      </p>
+
+      <!-- Grid 8 Aksara Murda -->
+      <div id="galeri-aksara-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Injected via JS dynamically -->
+      </div>
+    </section>
+
+    <section id="page-misi" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-jawa-gold/30 pb-4">
+        <button onclick="navigateTo('dashboard')" class="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </button>
+        <h2 class="text-2xl font-extrabold text-jawa-wood dark:text-amber-200">Misi & Tantangan Interaktif</h2>
+        <div></div>
+      </div>
+
+      <!-- Navigation Tabs Misi -->
+      <div class="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+        <button onclick="switchMisiTab(1)" id="tab-misi-1" class="px-4 py-2 rounded-xl font-bold text-xs sm:text-sm bg-jawa-gold text-jawa-darkwood shadow">
+          Misi 1: Kenali Aksara
+        </button>
+        <button onclick="switchMisiTab(2)" id="tab-misi-2" class="px-4 py-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+          Misi 2: Tebak Tokoh
+        </button>
+        <button onclick="switchMisiTab(3)" id="tab-misi-3" class="px-4 py-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+          Misi 3: Susun Aksara
+        </button>
+        <button onclick="switchMisiTab(4)" id="tab-misi-4" class="px-4 py-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+          Misi 4: Detektif Murda
+        </button>
+      </div>
+
+      <!-- MISI 1 CONTENT -->
+      <div id="misi-container-1" class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Game Mencocokkan</span>
+          <span class="text-xs font-semibold text-slate-500">Soal <span id="misi1-idx">1</span>/5</span>
+        </div>
+
+        <div class="text-center py-4">
+          <p class="text-base sm:text-lg font-semibold text-slate-800 dark:text-amber-100 mb-2">Mana Aksara Murda ing ngisor iki kanggo fonem / bunyi:</p>
+          <div id="misi1-prompt" class="text-3xl font-extrabold text-jawa-wood dark:text-jawa-gold my-4">
+            "KA" (ꦑ)
+          </div>
+        </div>
+
+        <div id="misi1-options" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <!-- Dynamic Options -->
+        </div>
+
+        <div id="misi1-feedback" class="hidden p-4 rounded-2xl text-center font-bold text-sm"></div>
+      </div>
+
+      <!-- MISI 2 CONTENT -->
+      <div id="misi-container-2" class="hidden glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Misi 2: Tebak Nama Tokoh / Kutha</span>
+          <span class="text-xs font-semibold text-slate-500">Soal <span id="misi2-idx">1</span>/4</span>
+        </div>
+
+        <div class="text-center py-4">
+          <p class="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Pilih penulisan Aksara Jawa Murda kang paling trep kanggo nama tokoh/papan ing ngisor iki:</p>
+          <div id="misi2-target-latin" class="text-2xl font-extrabold text-jawa-wood dark:text-amber-200 my-2">
+            "Raden Gatotkaca"
+          </div>
+        </div>
+
+        <div id="misi2-options" class="space-y-3">
+          <!-- Dynamic Options -->
+        </div>
+
+        <div id="misi2-feedback" class="hidden p-4 rounded-2xl text-center font-bold text-sm"></div>
+      </div>
+
+      <!-- MISI 3 CONTENT -->
+      <div id="misi-container-3" class="hidden glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Misi 3: Susun Tembung (Drag & Click)</span>
+          <div class="flex items-center space-x-2 text-xs font-bold text-rose-600">
+            <i class="fa-solid fa-clock"></i>
+            <span id="misi3-timer">30 s</span>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <p class="text-sm text-slate-600 dark:text-slate-300">Susun potongan aksara ing ngisor iki dadi tembung Latin:</p>
+          <div id="misi3-target-word" class="text-xl font-bold text-amber-800 dark:text-amber-300 my-2">
+            "S U R A K A R T A"
+          </div>
+        </div>
+
+        <!-- Target Assembly Area -->
+        <div id="misi3-dropzone" class="min-h-[60px] p-3 rounded-2xl bg-amber-50/80 dark:bg-slate-800 border-2 border-dashed border-jawa-gold flex flex-wrap items-center justify-center gap-2">
+          <span class="text-xs text-slate-400 italic">Klik potongan aksara ing ngisor kanggo nyusun</span>
+        </div>
+
+        <!-- Source Tiles -->
+        <div id="misi3-tiles" class="flex flex-wrap justify-center gap-3 py-2">
+          <!-- Tiles generated dynamically -->
+        </div>
+
+        <div class="flex justify-center space-x-4">
+          <button onclick="resetMisi3Tiles()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-xs font-bold">Reset Susunan</button>
+          <button onclick="checkMisi3Answer()" class="px-6 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow">Kirim Jawaban</button>
+        </div>
+
+        <div id="misi3-feedback" class="hidden p-4 rounded-2xl text-center font-bold text-sm"></div>
+      </div>
+
+      <!-- MISI 4 CONTENT -->
+      <div id="misi-container-4" class="hidden glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Misi 4: Detektif Murda (Cari Kesalahan)</span>
+          <span class="text-xs font-semibold text-slate-500">Kasus <span id="misi4-idx">1</span>/3</span>
+        </div>
+
+        <div class="text-center py-2">
+          <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Temokake ngendi kesalahan panggunaan Aksara Murda ing opsi ngisor iki:</p>
+        </div>
+
+        <div id="misi4-options" class="space-y-3">
+          <!-- Dynamic Options -->
+        </div>
+
+        <div id="misi4-feedback" class="hidden p-4 rounded-2xl text-center font-bold text-sm"></div>
+      </div>
+
+    </section>
+
+    <section id="page-latihan" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-jawa-gold/30 pb-4">
+        <button onclick="navigateTo('dashboard')" class="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </button>
+        <h2 class="text-2xl font-extrabold text-jawa-wood dark:text-amber-200">Latihan Interaktif (15 Soal)</h2>
+        <div></div>
+      </div>
+
+      <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+        <!-- Practice Header info -->
+        <div class="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+          <span class="text-xs font-bold text-amber-700 dark:text-amber-400">Soal <span id="lat-current-num">1</span> saka 15</span>
+          <span class="text-xs font-bold text-emerald-600" id="lat-score-badge">Skor Benar: 0</span>
+        </div>
+
+        <!-- Question Prompt Area -->
+        <div id="lat-question-container" class="space-y-4">
+          <!-- Injected via JS -->
+        </div>
+
+        <div id="lat-feedback" class="hidden p-4 rounded-2xl font-bold text-sm text-center"></div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center pt-4">
+          <button id="lat-btn-prev" onclick="prevLatihan()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-xs font-bold disabled:opacity-40">← Sadurunge</button>
+          <button id="lat-btn-next" onclick="nextLatihan()" class="px-6 py-2.5 rounded-xl bg-jawa-wood text-amber-100 text-xs font-bold shadow hover:bg-amber-900 transition">Sabanjure →</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-kuis" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-jawa-gold/30 pb-4">
+        <button onclick="navigateTo('dashboard')" class="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </button>
+        <h2 class="text-2xl font-extrabold text-jawa-wood dark:text-amber-200">Kuis Akhir Aksara Murda</h2>
+        <div></div>
+      </div>
+
+      <!-- Kuis Start Box -->
+      <div id="kuis-start-card" class="glass-card p-8 rounded-3xl text-center space-y-6 max-w-xl mx-auto">
+        <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 flex items-center justify-center text-4xl">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <h3 class="text-2xl font-black text-jawa-wood dark:text-amber-200">Ujian Akhir Murdaverse</h3>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-2">
+            Uji kemampuanmu babagan Aksara Murda kanthi 20 soal pilihan ganda lan konversi.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 text-xs font-semibold py-2">
+          <div class="p-3 bg-white/60 dark:bg-slate-800 rounded-xl border">
+            <span class="block text-slate-400">Total Soal</span>
+            <span class="text-base font-bold text-amber-700 dark:text-amber-300">20 Soal</span>
+          </div>
+          <div class="p-3 bg-white/60 dark:bg-slate-800 rounded-xl border">
+            <span class="block text-slate-400">Waktu</span>
+            <span class="text-base font-bold text-amber-700 dark:text-amber-300">15 Menit</span>
+          </div>
+          <div class="p-3 bg-white/60 dark:bg-slate-800 rounded-xl border">
+            <span class="block text-slate-400">Nilai Maks</span>
+            <span class="text-base font-bold text-amber-700 dark:text-amber-300">100 Poin</span>
+          </div>
+        </div>
+
+        <button onclick="startFinalQuiz()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-jawa-wood to-amber-800 text-white font-bold text-base shadow-lg hover:shadow-xl transition">
+          Mulai Kuis Sekarang!
+        </button>
+      </div>
+
+      <!-- Kuis Active Playing Area -->
+      <div id="kuis-active-card" class="hidden glass-card p-6 sm:p-8 rounded-3xl space-y-6">
+        <!-- Quiz Header -->
+        <div class="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-700">
+          <div>
+            <span class="text-xs font-bold uppercase text-amber-700 dark:text-amber-400">Soal <span id="kuis-num">1</span> / 20</span>
+          </div>
+          <div class="flex items-center space-x-2 text-rose-600 font-bold text-sm bg-rose-50 dark:bg-rose-950/40 px-3 py-1 rounded-full border border-rose-200">
+            <i class="fa-solid fa-clock"></i>
+            <span id="kuis-timer-text">15:00</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+          <div id="kuis-progress-bar" class="bg-jawa-gold h-full transition-all duration-300" style="width: 5%"></div>
+        </div>
+
+        <!-- Question Prompt -->
+        <div id="kuis-question-text" class="text-base sm:text-lg font-bold text-slate-800 dark:text-amber-100 py-2">
+          <!-- Question text -->
+        </div>
+
+        <!-- Answer Options -->
+        <div id="kuis-options-container" class="space-y-3">
+          <!-- Dynamic options -->
+        </div>
+
+        <!-- Footer Quiz Button -->
+        <div class="flex justify-end pt-4">
+          <button id="kuis-next-btn" onclick="submitKuisAnswer()" class="px-6 py-2.5 rounded-xl bg-jawa-wood text-white font-bold text-xs sm:text-sm shadow">
+            Lanjut Soal →
+          </button>
+        </div>
+      </div>
+
+      <!-- Kuis Result Card -->
+      <div id="kuis-result-card" class="hidden glass-card p-8 rounded-3xl text-center space-y-6 max-w-xl mx-auto border-2 border-jawa-gold">
+        <div class="w-24 h-24 mx-auto rounded-full bg-amber-100 dark:bg-amber-900/60 flex items-center justify-center text-5xl text-jawa-gold pulse-glow border-2 border-jawa-gold">
+          🏆
+        </div>
+
+        <div>
+          <span id="kuis-result-badge-title" class="px-4 py-1.5 rounded-full bg-amber-200 text-amber-900 dark:bg-amber-800 dark:text-amber-100 font-black text-xs uppercase tracking-wider">
+            MASTER MURDA
+          </span>
+          <h3 class="text-4xl font-black text-jawa-wood dark:text-amber-200 mt-3" id="kuis-final-score">95</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Nilai Akhir Kuis Murdaverse</p>
+        </div>
+
+        <!-- Stats Breakdown -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-semibold py-2">
+          <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <span class="block text-slate-400">Benar</span>
+            <span id="kuis-stat-correct" class="text-emerald-600 font-bold text-base">19</span>
+          </div>
+          <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <span class="block text-slate-400">Salah</span>
+            <span id="kuis-stat-wrong" class="text-rose-600 font-bold text-base">1</span>
+          </div>
+          <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <span class="block text-slate-400">Akurasi</span>
+            <span id="kuis-stat-acc" class="text-amber-600 font-bold text-base">95%</span>
+          </div>
+          <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <span class="block text-slate-400">XP Diperoleh</span>
+            <span id="kuis-stat-xp" class="text-jawa-gold font-bold text-base">+100 XP</span>
+          </div>
+        </div>
+
+        <!-- Actions: WA Submit & Restart -->
+        <div class="space-y-3 pt-2">
+          <button onclick="sendResultToWhatsApp()" class="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow flex items-center justify-center space-x-2">
+            <i class="fa-brands fa-whatsapp text-lg"></i>
+            <span>Kirim Nilai ke WA Guru (085156342160)</span>
+          </button>
+
+          <div class="flex gap-3">
+            <button onclick="startFinalQuiz()" class="flex-1 py-3 rounded-xl bg-slate-200 dark:bg-slate-700 font-bold text-xs">Ulangi Kuis</button>
+            <button onclick="navigateTo('dashboard')" class="flex-1 py-3 rounded-xl bg-jawa-wood text-white font-bold text-xs">Kembali ke Beranda</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-belajar-cepat" class="hidden space-y-6 max-w-3xl mx-auto">
+      <div class="flex items-center justify-between border-b border-jawa-gold/30 pb-4">
+        <button onclick="navigateTo('dashboard')" class="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </button>
+        <h2 class="text-xl font-extrabold text-jawa-wood dark:text-amber-200">⚡ Belajar Cepat 5 Menit</h2>
+        <div></div>
+      </div>
+
+      <div class="glass-card p-6 rounded-3xl space-y-6">
+        <div id="quick-study-content" class="space-y-4">
+          <!-- Dynamically injected quick flashcards -->
+        </div>
+
+        <div class="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700">
+          <span class="text-xs text-slate-400 font-semibold" id="quick-step-indicator">Langkah 1 / 5</span>
+          <button onclick="nextQuickStudyStep()" id="quick-next-btn" class="px-6 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow">
+            Lanjut →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-leaderboard" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-jawa-gold/30 pb-4">
+        <button onclick="navigateTo('dashboard')" class="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </button>
+        <h2 class="text-2xl font-extrabold text-jawa-wood dark:text-amber-200">Papan Peringkat Kelas</h2>
+        <div></div>
+      </div>
+
+      <div class="glass-card rounded-3xl overflow-hidden shadow-md">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-amber-900 text-amber-100 font-bold uppercase text-xs">
+              <tr>
+                <th class="p-4 text-center">Peringkat</th>
+                <th class="p-4">Nama Siswa</th>
+                <th class="p-4">Level</th>
+                <th class="p-4">Total XP</th>
+                <th class="p-4">Lencana Utama</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-table-body" class="divide-y divide-slate-200 dark:divide-slate-800 font-semibold">
+              <!-- Dynamically filled leaderboard entries -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-profil" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-jawa-gold/30 pb-4">
+        <button onclick="navigateTo('dashboard')" class="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </button>
+        <h2 class="text-2xl font-extrabold text-jawa-wood dark:text-amber-200">Profil & Pencapaian</h2>
+        <div></div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- User Info Card -->
+        <div class="glass-card p-6 rounded-3xl text-center space-y-4">
+          <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-jawa-wood to-jawa-gold flex items-center justify-center text-white text-5xl font-aksara shadow-lg border-2 border-amber-200">
+            ꦟ
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-jawa-wood dark:text-amber-200" id="prof-user-name">Siswa SMK</h3>
+            <p class="text-xs text-amber-700 dark:text-amber-400 font-semibold mt-0.5">Kelas XI SMK - Bahasa Jawa</p>
+          </div>
+
+          <div class="p-3 bg-amber-50 dark:bg-slate-800 rounded-2xl border border-jawa-gold/30 text-xs space-y-1">
+            <div class="flex justify-between"><span>Tingkat Level:</span><span id="prof-level" class="font-bold text-amber-700">Level 1 (Purwa)</span></div>
+            <div class="flex justify-between"><span>Total XP:</span><span id="prof-xp" class="font-bold text-amber-700">0 XP</span></div>
+            <div class="flex justify-between"><span>Skor Kuis Tertinggi:</span><span id="prof-high-score" class="font-bold text-emerald-600">0</span></div>
+          </div>
+
+          <button onclick="resetAllProgress()" class="w-full py-2 rounded-xl bg-rose-100 text-rose-700 hover:bg-rose-200 text-xs font-bold transition">
+            Reset Progress Belajar
+          </button>
+        </div>
+
+        <!-- Badges Grid Card -->
+        <div class="glass-card p-6 rounded-3xl md:col-span-2 space-y-4">
+          <h3 class="text-lg font-bold text-jawa-wood dark:text-amber-200 flex items-center gap-2">
+            <i class="fa-solid fa-award text-jawa-gold"></i>
+            <span>Daftar Lencana Pencapaian (Badges)</span>
+          </h3>
+
+          <div id="badges-grid-container" class="grid sm:grid-cols-3 gap-4">
+            <!-- Badges filled dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-guru" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-jawa-gold/30 pb-4">
+        <button onclick="navigateTo('dashboard')" class="text-xs font-bold text-amber-800 dark:text-amber-300 hover:underline flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </button>
+        <h2 class="text-2xl font-extrabold text-jawa-wood dark:text-amber-200">Portal Mode Guru</h2>
+        <div></div>
+      </div>
+
+      <div class="glass-card p-6 rounded-3xl space-y-6">
+        <div class="flex flex-wrap gap-3 border-b border-slate-200 dark:border-slate-700 pb-3">
+          <button onclick="switchGuruTab('scores')" id="guru-tab-scores" class="px-4 py-2 rounded-xl text-xs font-bold bg-jawa-gold text-jawa-darkwood">Hasil Nilai Siswa</button>
+          <button onclick="switchGuruTab('questions')" id="guru-tab-questions" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Bank Soal Kuis</button>
+        </div>
+
+        <!-- Tab 1: Student Scores Log -->
+        <div id="guru-sec-scores" class="space-y-4">
+          <h3 class="text-base font-bold text-jawa-wood dark:text-amber-200">Riwayat Hasil Kuis Siswa</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs sm:text-sm">
+              <thead class="bg-slate-100 dark:bg-slate-800 font-bold">
+                <tr>
+                  <th class="p-3">Tanggal</th>
+                  <th class="p-3">Nama Siswa</th>
+                  <th class="p-3">Nilai Kuis</th>
+                  <th class="p-3">Predikat</th>
+                  <th class="p-3">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="guru-scores-table" class="divide-y divide-slate-200 dark:divide-slate-800 font-semibold">
+                <!-- Log entry -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 2: Question Management CRUD -->
+        <div id="guru-sec-questions" class="hidden space-y-4">
+          <div class="flex justify-between items-center">
+            <h3 class="text-base font-bold text-jawa-wood dark:text-amber-200">Daftar Soal Aktif</h3>
+            <button onclick="openAddQuestionModal()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold">+ Tambah Soal</button>
+          </div>
+          <div id="guru-questions-list" class="space-y-3">
+            <!-- Questions rendered via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM MOBILE NAVIGATION BAR -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white/95 dark:bg-jawa-darkwood/95 backdrop-blur-md border-t border-jawa-gold/30 z-40 px-2 py-2">
+    <div class="grid grid-cols-5 text-center">
+      <button onclick="navigateTo('dashboard')" class="flex flex-col items-center py-1 text-slate-600 dark:text-slate-300 hover:text-jawa-gold">
+        <i class="fa-solid fa-house text-lg"></i>
+        <span class="text-[10px] font-semibold mt-0.5">Beranda</span>
+      </button>
+      <button onclick="navigateTo('galeri')" class="flex flex-col items-center py-1 text-slate-600 dark:text-slate-300 hover:text-jawa-gold">
+        <i class="fa-solid fa-icons text-lg"></i>
+        <span class="text-[10px] font-semibold mt-0.5">Galeri</span>
+      </button>
+      <button onclick="navigateTo('misi')" class="flex flex-col items-center py-1 text-slate-600 dark:text-slate-300 hover:text-jawa-gold">
+        <i class="fa-solid fa-gamepad text-lg"></i>
+        <span class="text-[10px] font-semibold mt-0.5">Misi</span>
+      </button>
+      <button onclick="navigateTo('kuis')" class="flex flex-col items-center py-1 text-slate-600 dark:text-slate-300 hover:text-jawa-gold">
+        <i class="fa-solid fa-graduation-cap text-lg"></i>
+        <span class="text-[10px] font-semibold mt-0.5">Kuis</span>
+      </button>
+      <button onclick="navigateTo('profil')" class="flex flex-col items-center py-1 text-slate-600 dark:text-slate-300 hover:text-jawa-gold">
+        <i class="fa-solid fa-user text-lg"></i>
+        <span class="text-[10px] font-semibold mt-0.5">Profil</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MODALS -->
+  <!-- Teacher Auth Password Modal -->
+  <div id="modal-guru-auth" class="hidden fixed inset-0 bg-black/60 z-50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card p-6 rounded-3xl max-w-sm w-full space-y-4 text-center">
+      <h3 class="text-xl font-bold text-jawa-wood dark:text-amber-200">Verifikasi Guru</h3>
+      <p class="text-xs text-slate-500">Masukkan kata sandi guru untuk mengakses Mode Guru.</p>
+      <input type="password" id="guru-pass-input" placeholder="Password Guru (Default: guru123)" class="w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-800 text-center font-bold text-sm">
+      <div class="flex gap-2">
+        <button onclick="closeGuruAuthModal()" class="flex-1 py-2 rounded-xl bg-slate-200 text-slate-700 font-bold text-xs">Batal</button>
+        <button onclick="verifyGuruPassword()" class="flex-1 py-2 rounded-xl bg-amber-800 text-white font-bold text-xs">Login Guru</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Question Modal -->
+  <div id="modal-add-question" class="hidden fixed inset-0 bg-black/60 z-50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card p-6 rounded-3xl max-w-md w-full space-y-4 max-h-[90vh] overflow-y-auto text-left">
+      <h3 class="text-lg font-bold text-jawa-wood dark:text-amber-200">Tambah Soal Baru</h3>
+      <div>
+        <label class="block text-xs font-bold mb-1">Pertanyaan Soal</label>
+        <textarea id="new-q-text" class="w-full p-2.5 rounded-xl border bg-white dark:bg-slate-800 text-xs font-semibold" rows="2" placeholder="Tuliskan soal..."></textarea>
+      </div>
+      <div class="space-y-2">
+        <label class="block text-xs font-bold">Pilihan Jawaban (Berikan A-D)</label>
+        <input type="text" id="new-q-opt0" placeholder="Pilihan A" class="w-full p-2 rounded-xl border text-xs bg-white dark:bg-slate-800">
+        <input type="text" id="new-q-opt1" placeholder="Pilihan B" class="w-full p-2 rounded-xl border text-xs bg-white dark:bg-slate-800">
+        <input type="text" id="new-q-opt2" placeholder="Pilihan C" class="w-full p-2 rounded-xl border text-xs bg-white dark:bg-slate-800">
+        <input type="text" id="new-q-opt3" placeholder="Pilihan D" class="w-full p-2 rounded-xl border text-xs bg-white dark:bg-slate-800">
+      </div>
+      <div>
+        <label class="block text-xs font-bold mb-1">Indeks Jawaban Benar (0=A, 1=B, 2=C, 3=D)</label>
+        <select id="new-q-correct" class="w-full p-2 rounded-xl border text-xs bg-white dark:bg-slate-800">
+          <option value="0">A</option>
+          <option value="1">B</option>
+          <option value="2">C</option>
+          <option value="3">D</option>
+        </select>
+      </div>
+      <div class="flex gap-2 pt-2">
+        <button onclick="closeAddQuestionModal()" class="flex-1 py-2 rounded-xl bg-slate-200 text-slate-700 font-bold text-xs">Batal</button>
+        <button onclick="saveNewQuestion()" class="flex-1 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs">Simpan Soal</button>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    const DEFAULT_STATE = {
+      userName: 'Siswa SMK',
+      xp: 0,
+      streakDays: 1,
+      quizHighScore: 0,
+      unlockedBadges: ['b1'], // 'b1' Pemula Murda default
+      quizHistory: []
+    };
+
+    let appState = JSON.parse(localStorage.getItem('murdaverse_state')) || DEFAULT_STATE;
+    let isSoundEnabled = true;
+
+    // AUDIO SYNTHESIZER FOR SOUND EFFECTS
+    function playAudioFx(type) {
+      if (!isSoundEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+        if (type === 'success') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+          osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else if (type === 'fail') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(150, now + 0.25);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'click') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(400, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        }
+      } catch (e) {
+        // Fallback gracefully
+      }
+    }
+
+    function toggleSound() {
+      isSoundEnabled = !isSoundEnabled;
+      const icon = document.getElementById('sound-icon');
+      icon.className = isSoundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-rose-500';
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      const icon = document.getElementById('theme-icon');
+      icon.className = document.documentElement.classList.contains('dark') ? 'fa-solid fa-sun text-amber-300' : 'fa-solid fa-moon';
+    }
+
+    function saveState() {
+      localStorage.setItem('murdaverse_state', JSON.stringify(appState));
+      updateUIStats();
+    }
+
+    const LEVEL_TITLES = [
+      { level: 1, name: 'Purwa', minXp: 0 },
+      { level: 2, name: 'Madya', minXp: 100 },
+      { level: 3, name: 'Wira', minXp: 250 },
+      { level: 4, name: 'Wasis', minXp: 500 },
+      { level: 5, name: 'Jawara', minXp: 1000 }
+    ];
+
+    function calculateLevel(xp) {
+      let current = LEVEL_TITLES[0];
+      for (let lvl of LEVEL_TITLES) {
+        if (xp >= lvl.minXp) current = lvl;
+      }
+      return current;
+    }
+
+    function addXP(amount, sourceReason) {
+      const oldLevel = calculateLevel(appState.xp).level;
+      appState.xp += amount;
+      const newLevel = calculateLevel(appState.xp).level;
+
+      playAudioFx('success');
+
+      if (newLevel > oldLevel) {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        alert(`🎉 SELAMAT! Kamu naik ke Level ${newLevel} (${calculateLevel(appState.xp).name})!`);
+      }
+
+      checkBadgesUnlock();
+      saveState();
+    }
+
+    function updateUIStats() {
+      const lvl = calculateLevel(appState.xp);
+      const name = appState.userName || 'Siswa SMK';
+
+      // Navbar
+      document.getElementById('nav-user-level').innerText = `${lvl.level} (${lvl.name})`;
+      document.getElementById('nav-user-xp').innerText = appState.xp;
+      document.getElementById('nav-user-streak').innerText = appState.streakDays;
+
+      // Dashboard
+      document.getElementById('dash-user-name').innerText = name;
+      document.getElementById('dash-level-title').innerText = lvl.name;
+      document.getElementById('dash-badge-level-tag').innerText = `Lvl ${lvl.level}`;
+      
+      let nextMin = 1000;
+      const currentLvlIdx = LEVEL_TITLES.findIndex(l => l.level === lvl.level);
+      if (currentLvlIdx < LEVEL_TITLES.length - 1) {
+        nextMin = LEVEL_TITLES[currentLvlIdx + 1].minXp;
+      }
+      const pct = Math.min(100, Math.round((appState.xp / nextMin) * 100));
+      document.getElementById('dash-xp-text').innerText = `${appState.xp} / ${nextMin} XP`;
+      document.getElementById('dash-xp-bar').style.width = `${pct}%`;
+
+      // Profile
+      document.getElementById('prof-user-name').innerText = name;
+      document.getElementById('prof-level').innerText = `Level ${lvl.level} (${lvl.name})`;
+      document.getElementById('prof-xp').innerText = `${appState.xp} XP`;
+      document.getElementById('prof-high-score').innerText = appState.quizHighScore;
+
+      renderBadgesGrid();
+      renderLeaderboard();
+    }
+
+    function navigateTo(pageId) {
+      playAudioFx('click');
+      const pages = ['splash', 'dashboard', 'materi', 'galeri', 'misi', 'latihan', 'kuis', 'belajar-cepat', 'leaderboard', 'profil', 'guru'];
+      pages.forEach(p => {
+        const el = document.getElementById(`page-${p}`);
+        if (el) el.classList.add('hidden');
+      });
+
+      const target = document.getElementById(`page-${pageId}`);
+      if (target) {
+        target.classList.remove('hidden');
+        window.scrollTo(0, 0);
+      }
+
+      // Page specific init
+      if (pageId === 'galeri') renderGaleriCards();
+      if (pageId === 'misi') initMisi1();
+      if (pageId === 'latihan') initLatihanSection();
+      if (pageId === 'belajar-cepat') initBelajarCepatMode();
+      if (pageId === 'guru') renderGuruSection();
+    }
+
+    function startLearning() {
+      const input = document.getElementById('input-student-name').value.trim();
+      if (input) {
+        appState.userName = input;
+      }
+      saveState();
+      navigateTo('dashboard');
+    }
+
+    function editStudentName() {
+      const newName = prompt('Masukkan Nama Lengkap Baru:', appState.userName);
+      if (newName) {
+        appState.userName = newName;
+        saveState();
+      }
+    }
+
+    const GALLERY_MURDA_DATA = [
+      { symbol: 'ꦟ', latin: 'Na', name: 'Na Murda', soundText: 'Na Murda', sample: 'Nawawi', aksaraSample: 'ꦟꦮꦮꦶ', rule: 'Digunakake ing awal nama tuladha: Nawawi.' },
+      { symbol: 'ꦑ', latin: 'Ka', name: 'Ka Murda', soundText: 'Ka Murda', sample: 'Kartini', aksaraSample: 'ꦑꦂꦠꦶꦤꦶ', rule: 'Digunakake ing awal nama tuladha: Kartini.' },
+      { symbol: 'ꦡ', latin: 'Ta', name: 'Ta Murda', soundText: 'Ta Murda', sample: 'Timbul', aksaraSample: 'ꦡꦶꦩ꧀ꦧꦸꦭ꧀', rule: 'Digunakake ing awal nama tuladha: Timbul.' },
+      { symbol: 'ꦯ', latin: 'Sa', name: 'Sa Murda', soundText: 'Sa Murda', sample: 'Surakarta', aksaraSample: 'ꦯꦸꦫꦏꦂꦠ', rule: 'Digunakake ing awal nama papan tuladha: Surakarta.' },
+      { symbol: 'ꦦ', latin: 'Pa', name: 'Pa Murda', soundText: 'Pa Murda', sample: 'Pangeran', aksaraSample: 'ꦦꦔꦺꦫꦤ꧀', rule: 'Digunakake ing awal gelar/nama tuladha: Pangeran.' },
+      { symbol: 'ꦓ', latin: 'Ga', name: 'Ga Murda', soundText: 'Ga Murda', sample: 'Gatotkaca', aksaraSample: 'ꦓꦠꦺꦴꦠ꧀ꦏꦕ', rule: 'Digunakake ing awal nama toko tuladha: Gatotkaca.' },
+      { symbol: 'ꦨ', latin: 'Ba', name: 'Ba Murda', soundText: 'Ba Murda', sample: 'Budi', aksaraSample: 'ꦨꦸꦢꦶ', rule: 'Digunakake ing awal nama tuladha: Budi.' },
+      { symbol: 'ꦗ', latin: 'Ja', name: 'Ja / Nya Murda', soundText: 'Ja Murda', sample: 'Jawa', aksaraSample: 'ꦗꦮ', rule: 'Digunakake ing penulisan nama tartamtu.' }
+    ];
+
+    function renderGaleriCards() {
+      const grid = document.getElementById('galeri-aksara-grid');
+      grid.innerHTML = GALLERY_MURDA_DATA.map((item, idx) => `
+        <div onclick="playAksaraAudio('${item.soundText}')" class="glass-card p-5 rounded-3xl text-center hover:border-jawa-gold cursor-pointer transition transform hover:-translate-y-1 shadow-sm hover:shadow-md space-y-3 relative group">
+          <div class="absolute top-3 right-3 text-amber-600 dark:text-amber-400 opacity-80 group-hover:scale-125 transition">
+            <i class="fa-solid fa-volume-high"></i>
+          </div>
+          <div class="text-6xl font-black font-aksara text-jawa-wood dark:text-jawa-gold py-2">
+            ${item.symbol}
+          </div>
+          <div>
+            <h4 class="font-extrabold text-base text-slate-800 dark:text-amber-100">${item.latin} (${item.name})</h4>
+            <p class="text-xs text-amber-700 dark:text-amber-400 font-semibold mt-1">Conto: ${item.sample}</p>
+          </div>
+          <div class="p-2 bg-amber-50 dark:bg-slate-800/80 rounded-xl border border-jawa-gold/20 text-xs">
+            <span class="block text-slate-500 text-[10px]">Wujud Aksara Jawa:</span>
+            <span class="font-aksara text-lg font-bold text-slate-800 dark:text-amber-200">${item.aksaraSample}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function playAksaraAudio(text) {
+      playAudioFx('click');
+      if ('speechSynthesis' in window) {
+        const synth = window.speechSynthesis;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'id-ID';
+        synth.speak(utter);
+      } else {
+        alert(`Pengucapan Aksara: ${text}`);
+      }
+    }
+
+    // MISI 1: Matching
+    const MISI1_QUESTIONS = [
+      { target: 'KA', correctSymbol: 'ꦑ', options: ['ꦑ', 'ꦟ', 'ꦡ', 'ꦯ'] },
+      { target: 'TA', correctSymbol: 'ꦡ', options: ['ꦦ', 'ꦡ', 'ꦓ', 'ꦨ'] },
+      { target: 'SA', correctSymbol: 'ꦯ', options: ['ꦯ', 'ꦑ', 'ꦟ', 'ꦗ'] },
+      { target: 'PA', correctSymbol: 'ꦦ', options: ['ꦨ', 'ꦓ', 'ꦦ', 'ꦡ'] },
+      { target: 'GA', correctSymbol: 'ꦓ', options: ['ꦓ', 'ꦑ', 'ꦯ', 'ꦟ'] }
+    ];
+    let misi1Current = 0;
+
+    function initMisi1() {
+      misi1Current = 0;
+      loadMisi1Question();
+    }
+
+    function loadMisi1Question() {
+      const q = MISI1_QUESTIONS[misi1Current];
+      document.getElementById('misi1-idx').innerText = misi1Current + 1;
+      document.getElementById('misi1-prompt').innerHTML = `"${q.target}"`;
+
+      const optionsDiv = document.getElementById('misi1-options');
+      optionsDiv.innerHTML = q.options.map(opt => `
+        <button onclick="checkMisi1Answer('${opt}')" class="p-6 rounded-2xl bg-white dark:bg-slate-800 border-2 border-jawa-gold/30 hover:border-jawa-gold text-4xl font-aksara font-bold hover:scale-105 transition shadow">
+          ${opt}
+        </button>
+      `).join('');
+
+      document.getElementById('misi1-feedback').classList.add('hidden');
+    }
+
+    function checkMisi1Answer(symbol) {
+      const q = MISI1_QUESTIONS[misi1Current];
+      const fb = document.getElementById('misi1-feedback');
+      fb.classList.remove('hidden');
+
+      if (symbol === q.correctSymbol) {
+        fb.className = 'p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300';
+        fb.innerHTML = '✨ Hebat! Bener banget! Kamudapatkan +10 XP.';
+        playAudioFx('success');
+        addXP(10, 'Misi 1');
+        setTimeout(() => {
+          misi1Current = (misi1Current + 1) % MISI1_QUESTIONS.length;
+          loadMisi1Question();
+        }, 1200);
+      } else {
+        fb.className = 'p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border border-rose-300';
+        fb.innerHTML = '❌ Belum tepat. Coba perhatikan kembali bentuk aksaranya.';
+        playAudioFx('fail');
+      }
+    }
+
+    // MISI TAB SWITCHER
+    function switchMisiTab(num) {
+      playAudioFx('click');
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`misi-container-${i}`).classList.add('hidden');
+        document.getElementById(`tab-misi-${i}`).className = 'px-4 py-2 rounded-xl font-bold text-xs sm:text-sm bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
+      }
+      document.getElementById(`misi-container-${num}`).classList.remove('hidden');
+      document.getElementById(`tab-misi-${num}`).className = 'px-4 py-2 rounded-xl font-bold text-xs sm:text-sm bg-jawa-gold text-jawa-darkwood shadow';
+
+      if (num === 1) initMisi1();
+      if (num === 2) initMisi2();
+      if (num === 3) initMisi3();
+      if (num === 4) initMisi4();
+    }
+
+    // MISI 2: Tebak Tokoh
+    const MISI2_QUESTIONS = [
+      { name: 'Raden Gatotkaca', correctOpt: 'ꦫꦢꦺꦤ꧀ꦓꦠꦺꦴꦠ꧀ꦏꦕ', options: ['ꦫꦢꦺꦤ꧀ꦓꦠꦺꦴꦠ꧀ꦏꦕ', 'ꦫꦢꦺꦤ꧀ꦏꦠꦺꦴꦠ꧀ꦏꦕ', 'ꦫꦢꦺꦤ꧀ꦟꦠꦺꦴꦠ꧀ꦏꦕ'] },
+      { name: 'Surakarta', correctOpt: 'ꦯꦸꦫꦏꦂꦠ', options: ['ꦯꦸꦫꦏꦂꦠ', 'ꦱꦸꦫꦏꦂꦠ', 'ꦡꦸꦫꦏꦂꦠ'] },
+      { name: 'Budi Sasmita', correctOpt: 'ꦨꦸꦢꦶꦯꦱ꧀ꦩꦶꦠ', options: ['ꦧꦸꦢꦶꦱꦱ꧀ꦩꦶꦠ', 'ꦨꦸꦢꦶꦯꦱ꧀ꦩꦶꦠ', 'ꦨꦸꦢꦶꦱꦱ꧀ꦩꦶꦠ'] }
+    ];
+    let misi2Current = 0;
+
+    function initMisi2() {
+      misi2Current = 0;
+      loadMisi2Question();
+    }
+
+    function loadMisi2Question() {
+      const q = MISI2_QUESTIONS[misi2Current];
+      document.getElementById('misi2-idx').innerText = misi2Current + 1;
+      document.getElementById('misi2-target-latin').innerText = `"${q.name}"`;
+
+      const optionsDiv = document.getElementById('misi2-options');
+      optionsDiv.innerHTML = q.options.map(opt => `
+        <button onclick="checkMisi2Answer('${opt}')" class="w-full p-4 rounded-2xl bg-white dark:bg-slate-800 border border-jawa-gold/30 hover:border-jawa-gold text-2xl font-aksara font-bold text-center hover:bg-amber-50 dark:hover:bg-slate-700 transition">
+          ${opt}
+        </button>
+      `).join('');
+
+      document.getElementById('misi2-feedback').classList.add('hidden');
+    }
+
+    function checkMisi2Answer(opt) {
+      const q = MISI2_QUESTIONS[misi2Current];
+      const fb = document.getElementById('misi2-feedback');
+      fb.classList.remove('hidden');
+
+      if (opt === q.correctOpt) {
+        fb.className = 'p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300';
+        fb.innerHTML = '✨ Bener! Apik banget! +15 XP';
+        playAudioFx('success');
+        addXP(15, 'Misi 2');
+        setTimeout(() => {
+          misi2Current = (misi2Current + 1) % MISI2_QUESTIONS.length;
+          loadMisi2Question();
+        }, 1200);
+      } else {
+        fb.className = 'p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border border-rose-300';
+        fb.innerHTML = '❌ Durung trep. Ayo coba maneh.';
+        playAudioFx('fail');
+      }
+    }
+
+    // MISI 3: Susun Aksara
+    const MISI3_DATA = { target: 'S U R A K A R T A', tiles: ['ꦯꦸ', 'ꦫ', 'ꦏꦂ', 'ꦠ'] };
+    let misi3Picked = [];
+
+    function initMisi3() {
+      misi3Picked = [];
+      renderMisi3Tiles();
+    }
+
+    function renderMisi3Tiles() {
+      const tilesDiv = document.getElementById('misi3-tiles');
+      tilesDiv.innerHTML = MISI3_DATA.tiles.map((t, idx) => `
+        <button onclick="pickMisi3Tile('${t}', ${idx})" id="m3-tile-${idx}" class="p-4 rounded-2xl bg-amber-100 dark:bg-amber-900/60 text-3xl font-aksara font-bold text-amber-900 dark:text-amber-100 hover:scale-105 transition shadow border border-jawa-gold">
+          ${t}
+        </button>
+      `).join('');
+
+      const dropzone = document.getElementById('misi3-dropzone');
+      dropzone.innerHTML = misi3Picked.length === 0 
+        ? '<span class="text-xs text-slate-400 italic">Klik potongan aksara ing ngisor kanggo nyusun</span>'
+        : misi3Picked.map(p => `<span class="px-3 py-2 bg-jawa-gold text-jawa-darkwood rounded-xl font-aksara text-2xl font-bold">${p}</span>`).join('');
+
+      document.getElementById('misi3-feedback').classList.add('hidden');
+    }
+
+    function pickMisi3Tile(tile, idx) {
+      playAudioFx('click');
+      misi3Picked.push(tile);
+      const btn = document.getElementById(`m3-tile-${idx}`);
+      if (btn) btn.disabled = true;
+      renderMisi3Tiles();
+    }
+
+    function resetMisi3Tiles() {
+      misi3Picked = [];
+      renderMisi3Tiles();
+    }
+
+    function checkMisi3Answer() {
+      const assembled = misi3Picked.join('');
+      const fb = document.getElementById('misi3-feedback');
+      fb.classList.remove('hidden');
+
+      if (assembled === 'ꦯꦸꦫꦏꦂꦠ') {
+        fb.className = 'p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300';
+        fb.innerHTML = '🎉 Apik banget! Susunan tembung Surakarta wis trep! +20 XP';
+        playAudioFx('success');
+        addXP(20, 'Misi 3');
+      } else {
+        fb.className = 'p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border border-rose-300';
+        fb.innerHTML = '❌ Susunan durung pas. Coba reset lan susun maneh!';
+        playAudioFx('fail');
+      }
+    }
+
+    // MISI 4: Detektif Murda
+    const MISI4_QUESTIONS = [
+      {
+        text: 'Manakah penulisan yang SALAH untuk nama "Kartini"?',
+        correctErrIdx: 1,
+        options: [
+          'ꦑꦂꦠꦶꦤꦶ (Kartini pakai Ka Murda)',
+          'ꦏꦂꦠꦶꦤꦶ (Kartini tanpa Aksara Murda sama sekali)',
+          'ꦑꦂꦡꦶꦤꦶ (Kartini pakai dua Murda berlebihan)'
+        ],
+        reason: 'Penggunaan Aksara Murda dalam satu kata cukup SATU saja di depan.'
+      }
+    ];
+    let misi4Current = 0;
+
+    function initMisi4() {
+      misi4Current = 0;
+      loadMisi4Question();
+    }
+
+    function loadMisi4Question() {
+      const q = MISI4_QUESTIONS[misi4Current];
+      document.getElementById('misi4-idx').innerText = misi4Current + 1;
+
+      const container = document.getElementById('misi4-options');
+      container.innerHTML = q.options.map((opt, idx) => `
+        <button onclick="checkMisi4Answer(${idx})" class="w-full p-4 rounded-2xl bg-white dark:bg-slate-800 border border-jawa-gold/30 hover:border-jawa-gold text-left font-bold text-xs sm:text-sm text-slate-800 dark:text-amber-100 hover:bg-amber-50 transition flex items-center justify-between">
+          <span>${opt}</span>
+          <i class="fa-solid fa-magnifying-glass text-amber-600"></i>
+        </button>
+      `).join('');
+
+      document.getElementById('misi4-feedback').classList.add('hidden');
+    }
+
+    function checkMisi4Answer(idx) {
+      const q = MISI4_QUESTIONS[misi4Current];
+      const fb = document.getElementById('misi4-feedback');
+      fb.classList.remove('hidden');
+
+      if (idx === q.correctErrIdx) {
+        fb.className = 'p-4 rounded-2xl text-center font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300';
+        fb.innerHTML = `🕵️‍♂️ Detektif Handal! Alasan: ${q.reason} (+20 XP)`;
+        playAudioFx('success');
+        addXP(20, 'Misi 4');
+      } else {
+        fb.className = 'p-4 rounded-2xl text-center font-bold text-sm bg-rose-100 text-rose-800 border border-rose-300';
+        fb.innerHTML = '❌ Pilihan ini masih tepat secara kaidah. Coba cari kesalahan yang lain!';
+        playAudioFx('fail');
+      }
+    }
+
+    const LATIHAN_QUESTIONS = [
+      { q: 'Apa tegese tembung "Murda" secara etimologi?', opt: ['Sirah / Kepala', 'Tangan', 'Sikil', 'Atine'], ans: 0 },
+      { q: 'Pira cacahe Aksara Murda ing tata tulis Aksara Jawa?', opt: ['5 Aksara', '7 Aksara', '8 Aksara', '10 Aksara'], ans: 2 },
+      { q: 'Aksara Murda fungsine meh padha karo ... ing abjad Latin.', opt: ['Huruf Vokal', 'Huruf Kapital', 'Huruf Kecil', 'Tanda Baca'], ans: 1 },
+      { q: 'Wujud Aksara Murda kanggo fonem "Ka" yaiku ...', opt: ['ꦑ', 'ꦟ', 'ꦡ', 'ꦯ'], ans: 0 },
+      { q: 'Wujud Aksara Murda kanggo fonem "Sa" yaiku ...', opt: ['ꦯ', 'ꦦ', 'ꦓ', 'ꦨ'], ans: 0 },
+      { q: 'Ing ngisor iki tembung kang kudu nggunakake Aksara Murda, KAJABA ...', opt: ['Nama Wong', 'Nama Kutha', 'Tembung Kriya (Kata Kerja)', 'Gelar Jabatan'], ans: 2 },
+      { q: 'Benar utawa Salah: Aksara Murda kena ditulis ing kabeh aksara sajroning siji tembung.', opt: ['Benar', 'Salah'], ans: 1 },
+      { q: 'Pilihan ngisor iki kang nggunakake Aksara Murda kanthi trep yaiku ...', opt: ['ꦑꦂꦠꦶꦤꦶ', 'ꦑꦂꦡꦶꦟꦶ', 'ꦏꦂꦠꦶꦤꦶ'], ans: 0 },
+      { q: 'Aksara Murda ꦡ iku maca fonem ...', opt: ['Ta', 'Ka', 'Sa', 'Pa'], ans: 0 },
+      { q: 'Aksara Murda ꦦ iku maca fonem ...', opt: ['Pa', 'Ba', 'Ga', 'Na'], ans: 0 },
+      { q: 'Ing tembung "Surakarta", aksara Murda diselehake ing ...', opt: ['Aksara "Su"', 'Aksara "Ra"', 'Aksara "Ka"', 'Aksara "Ta"'], ans: 0 },
+      { q: 'Yen aksara pisanan ora nduweni wujud Murda, kepriye aturane?', opt: ['Ora usah nganggo Murda', 'Nggoleki ing aksara kaping loro/sabanjure', 'Ngganti kabeh dadi aksara Latin', 'Nggunakake Aksara Swara'], ans: 1 },
+      { q: 'Wujud Aksara Murda kanggo fonem "Ga" yaiku ...', opt: ['ꦓ', 'ꦑ', 'ꦨ', 'ꦗ'], ans: 0 },
+      { q: 'Wujud Aksara Murda kanggo fonem "Ba" yaiku ...', opt: ['ꦨ', 'ꦦ', 'ꦡ', 'ꦟ'], ans: 0 },
+      { q: 'Apakah Aksara Murda bisa menjadi pasangan?', opt: ['Bisa', 'Tidak Bisa'], ans: 0 }
+    ];
+
+    let latCurrentIndex = 0;
+    let latScore = 0;
+
+    function initLatihanSection() {
+      latCurrentIndex = 0;
+      latScore = 0;
+      renderLatihanQuestion();
+    }
+
+    function renderLatihanQuestion() {
+      const q = LATIHAN_QUESTIONS[latCurrentIndex];
+      document.getElementById('lat-current-num').innerText = latCurrentIndex + 1;
+      document.getElementById('lat-score-badge').innerText = `Skor Benar: ${latScore}`;
+
+      const container = document.getElementById('lat-question-container');
+      container.innerHTML = `
+        <p class="text-base font-bold text-slate-800 dark:text-amber-100">${q.q}</p>
+        <div class="space-y-2 pt-2">
+          ${q.opt.map((o, idx) => `
+            <button onclick="checkLatihanAns(${idx})" class="w-full p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-amber-100 border border-slate-200 dark:border-slate-700 text-left font-bold text-xs sm:text-sm transition">
+              ${String.fromCharCode(65 + idx)}. ${o}
+            </button>
+          `).join('')}
+        </div>
+      `;
+
+      document.getElementById('lat-feedback').classList.add('hidden');
+      document.getElementById('lat-btn-prev').disabled = latCurrentIndex === 0;
+    }
+
+    function checkLatihanAns(idx) {
+      const q = LATIHAN_QUESTIONS[latCurrentIndex];
+      const fb = document.getElementById('lat-feedback');
+      fb.classList.remove('hidden');
+
+      if (idx === q.ans) {
+        fb.className = 'p-4 rounded-2xl font-bold text-sm text-center bg-emerald-100 text-emerald-800 border border-emerald-300';
+        fb.innerHTML = '✨ Bener! Apik banget! (+10 XP)';
+        latScore += 10;
+        playAudioFx('success');
+        addXP(10, 'Latihan');
+      } else {
+        fb.className = 'p-4 rounded-2xl font-bold text-sm text-center bg-rose-100 text-rose-800 border border-rose-300';
+        fb.innerHTML = `❌ Durung trep. Jawaban kang bener yaiku: ${q.opt[q.ans]}`;
+        playAudioFx('fail');
+      }
+    }
+
+    function nextLatihan() {
+      if (latCurrentIndex < LATIHAN_QUESTIONS.length - 1) {
+        latCurrentIndex++;
+        renderLatihanQuestion();
+      } else {
+        alert(`Selesai! Skor Latihan Kamu: ${latScore}`);
+      }
+    }
+
+    function prevLatihan() {
+      if (latCurrentIndex > 0) {
+        latCurrentIndex--;
+        renderLatihanQuestion();
+      }
+    }
+
+    const KUIS_BANK = [
+      { q: 'Apa arti harfiah kata "Murda"?', opt: ['Raja', 'Kepala / Puncak', 'Tulis', 'Ilmu'], ans: 1 },
+      { q: 'Jumlah Aksara Murda dalam tata tulis standar sekolah adalah ...', opt: ['8', '10', '20', '5'], ans: 0 },
+      { q: 'Aksara Murda ꦑ digunakan untuk bunyi latin ...', opt: ['Ka', 'Ga', 'Ta', 'Sa'], ans: 0 },
+      { q: 'Aksara Murda ꦟ digunakan untuk bunyi latin ...', opt: ['Na / Nya', 'Pa', 'Ba', 'Ja'], ans: 0 },
+      { q: 'Aksara Murda ꦡ digunakan untuk bunyi latin ...', opt: ['Ta', 'Da', 'Tha', 'Ka'], ans: 0 },
+      { q: 'Aksara Murda ꦯ digunakan untuk bunyi latin ...', opt: ['Sa', 'Sha', 'Za', 'Fa'], ans: 0 },
+      { q: 'Aksara Murda ꦦ digunakan untuk bunyi latin ...', opt: ['Pa', 'Fa', 'Ba', 'Va'], ans: 0 },
+      { q: 'Aksara Murda ꦓ digunakan untuk bunyi latin ...', opt: ['Ga', 'Gha', 'Ka', 'Nga'], ans: 0 },
+      { q: 'Aksara Murda ꦨ digunakan untuk bunyi latin ...', opt: ['Ba', 'Bha', 'Pa', 'Ma'], ans: 0 },
+      { q: 'Manakah penulisan kata "Surakarta" yang benar?', opt: ['ꦯꦸꦫꦏꦂꦠ', 'ꦱꦸꦫꦏꦂꦠ', 'ꦯꦸꦫꦑꦂꦡ', 'ꦯꦸꦫꦏꦂꦡ'], ans: 0 },
+      { q: 'Berapa jumlah Aksara Murda yang boleh ditulis dalam SATU kata?', opt: ['Hanya 1 aksara', 'Semua aksara', 'Maksimal 3 aksara', 'Bebas'], ans: 0 },
+      { q: 'Apakah Aksara Murda boleh menjadi aksara mati/pangkon di akhir kata?', opt: ['Tidak Boleh', 'Boleh', 'Sangat Dianjurkan', 'Wajib'], ans: 0 },
+      { q: 'Penggunaan Aksara Murda yang tepat di bawah ini untuk nama tokoh "Raden Gatotkaca" adalah ...', opt: ['ꦫꦢꦺꦤ꧀ꦓꦠꦺꦴꦠ꧀ꦏꦕ', 'ꦫꦢꦺꦤ꧀ꦏꦠꦺꦴꦠ꧀ꦏꦕ', 'ꦫꦢꦺꦤ꧀ꦟꦠꦺꦴꦠ꧀ꦏꦕ', 'ꦫꦢꦺꦤ꧀ꦓꦠꦺꦴꦡ꧀ꦑꦕ'], ans: 0 },
+      { q: 'Jika aksara pertama suatu kata tidak memiliki bentuk Murda, maka ...', opt: ['Cari di aksara kedua/selanjutnya', 'Tidak usah ditulis Murda', 'Pakai Aksara Swara', 'Ganti huruf latin'], ans: 0 },
+      { q: 'Aksara Murda digunakan untuk penulisan berikut, KAJABA (kecuali):', opt: ['Nama Benda Umum (seperti meja)', 'Nama Orang', 'Gelar Jabatan', 'Nama Kota'], ans: 0 },
+      { q: 'Penulisan nama "Budi Sasmita" yang benar menggunakan Aksara Murda:', opt: ['ꦨꦸꦢꦶꦯꦱ꧀ꦩꦶꦠ', 'ꦧꦸꦢꦶꦱꦱ꧀ꦩꦶꦠ', 'ꦨꦸꦢꦶꦱꦱ꧀ꦩꦶꦠ', 'ꦨꦸꦢꦶꦯꦱ꧀ꦩꦶꦡ'], ans: 0 },
+      { q: 'Apakah Aksara Murda memiliki pasangan?', opt: ['Ya, Memiliki Pasangan', 'Tidak Punya', 'Hanya sebagian', 'Hanya aksara Ka'], ans: 0 },
+      { q: 'Aksara ꦑ jika diberi sandhangan wulu (i) menjadi dibaca ...', opt: ['Ki', 'Ku', 'Ke', 'Ko'], ans: 0 },
+      { q: 'Tembung "Pangeran" ditulis Murda menggunakan aksara pertama ...', opt: ['ꦦ', 'ꦥ', 'ꦨ', 'ꦟ'], ans: 0 },
+      { q: 'Fungsi utama Aksara Murda mirip dengan fungsi ... dalam bahasa Indonesia.', opt: ['Huruf Kapital', 'Tanda Baca Titik', 'Huruf Cetak Miring', 'Singkatan'], ans: 0 }
+    ];
+
+    let kuisCurrentIdx = 0;
+    let kuisAnswers = [];
+    let kuisTimerInterval = null;
+    let kuisSecondsLeft = 900; // 15 mins
+
+    function startFinalQuiz() {
+      kuisCurrentIdx = 0;
+      kuisAnswers = [];
+      kuisSecondsLeft = 900;
+
+      document.getElementById('kuis-start-card').classList.add('hidden');
+      document.getElementById('kuis-result-card').classList.add('hidden');
+      document.getElementById('kuis-active-card').classList.remove('hidden');
+
+      startKuisTimer();
+      renderKuisQuestion();
+    }
+
+    function startKuisTimer() {
+      clearInterval(kuisTimerInterval);
+      kuisTimerInterval = setInterval(() => {
+        kuisSecondsLeft--;
+        const m = Math.floor(kuisSecondsLeft / 60);
+        const s = kuisSecondsLeft % 60;
+        document.getElementById('kuis-timer-text').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+
+        if (kuisSecondsLeft <= 0) {
+          clearInterval(kuisTimerInterval);
+          finishKuis();
+        }
+      }, 1000);
+    }
+
+    function renderKuisQuestion() {
+      const q = KUIS_BANK[kuisCurrentIdx];
+      document.getElementById('kuis-num').innerText = kuisCurrentIdx + 1;
+      document.getElementById('kuis-progress-bar').style.width = `${((kuisCurrentIdx + 1) / KUIS_BANK.length) * 100}%`;
+      document.getElementById('kuis-question-text').innerText = q.q;
+
+      const opts = document.getElementById('kuis-options-container');
+      opts.innerHTML = q.opt.map((o, idx) => `
+        <label class="flex items-center p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-jawa-gold transition">
+          <input type="radio" name="kuis-opt" value="${idx}" class="w-4 h-4 text-jawa-gold focus:ring-jawa-gold">
+          <span class="ml-3 font-bold text-xs sm:text-sm text-slate-800 dark:text-amber-100">${String.fromCharCode(65 + idx)}. ${o}</span>
+        </label>
+      `).join('');
+    }
+
+    function submitKuisAnswer() {
+      const selected = document.querySelector('input[name="kuis-opt"]:checked');
+      if (!selected) {
+        alert('Pilih salah satu jawaban terlebih dahulu!');
+        return;
+      }
+
+      kuisAnswers.push(parseInt(selected.value));
+      playAudioFx('click');
+
+      if (kuisCurrentIdx < KUIS_BANK.length - 1) {
+        kuisCurrentIdx++;
+        renderKuisQuestion();
+      } else {
+        finishKuis();
+      }
+    }
+
+    function finishKuis() {
+      clearInterval(kuisTimerInterval);
+      document.getElementById('kuis-active-card').classList.add('hidden');
+      document.getElementById('kuis-result-card').classList.remove('hidden');
+
+      let correct = 0;
+      KUIS_BANK.forEach((q, idx) => {
+        if (kuisAnswers[idx] === q.ans) correct++;
+      });
+
+      const score = Math.round((correct / KUIS_BANK.length) * 100);
+      document.getElementById('kuis-final-score').innerText = score;
+      document.getElementById('kuis-stat-correct').innerText = correct;
+      document.getElementById('kuis-stat-wrong').innerText = KUIS_BANK.length - correct;
+      document.getElementById('kuis-stat-acc').innerText = `${score}%`;
+      document.getElementById('kuis-stat-xp').innerText = `+${score} XP`;
+
+      let badgeTitle = 'Ayo Berlatih Lagi';
+      if (score >= 90) badgeTitle = 'Master Murda';
+      else if (score >= 80) badgeTitle = 'Ahli Murda';
+      else if (score >= 70) badgeTitle = 'Pejuang Murda';
+
+      document.getElementById('kuis-result-badge-title').innerText = badgeTitle;
+
+      if (score > appState.quizHighScore) {
+        appState.quizHighScore = score;
+      }
+
+      // Add score log
+      appState.quizHistory.push({
+        date: new Date().toLocaleDateString('id-ID'),
+        score: score,
+        badge: badgeTitle
+      });
+
+      addXP(score, 'Kuis Akhir');
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+    }
+
+    function sendResultToWhatsApp() {
+      const name = appState.userName || 'Siswa SMK';
+      const score = document.getElementById('kuis-final-score').innerText;
+      const badge = document.getElementById('kuis-result-badge-title').innerText;
+      const text = `Sugeng rinten Ibu/Bapak Guru, kulo *${name}* sampel sampun ngrampungi Kuis Aksara Murda ing MURDAVERSE.%0A%0ANilai Akhir: *${score}*%0APredikat: *${badge}*%0A%0AMatur Nuwun!`;
+      
+      window.open(`https://wa.me/6285156342160?text=${text}`, '_blank');
+    }
+
+    const QUICK_STUDY_STEPS = [
+      { title: '1. Pengertian Aksara Murda', content: 'Aksara Murda iku aksara khusus kang fungsine meh padha karo Huruf Kapital ing basa Indonesia.' },
+      { title: '2. Jumlah Aksara', content: 'Cacahe Aksara Murda ana 8: Na (ꦟ), Ka (ꦑ), Ta (ꦡ), Sa (ꦯ), Pa (ꦦ), Ga (ꦓ), Ba (ꦨ), Ja/Nya (ꦗ).' },
+      { title: '3. Aturan Siji Tembung', content: 'Saben siji tembung (kata) CUKUP ditulis SIJI wae Aksara Murda ing paling ngarep.' },
+      { title: '4. Ora Kena Dadi Mati', content: 'Aksara Murda ora kena didadekake aksara mati/pangkon ing pungkasan tembung.' },
+      { title: '5. Tantangan Singkat!', content: 'Pilih Aksara Murda kanggo "Ka": ꦑ (Ka Murda).' }
+    ];
+    let quickStep = 0;
+
+    function initBelajarCepatMode() {
+      quickStep = 0;
+      renderQuickStep();
+    }
+
+    function renderQuickStep() {
+      const step = QUICK_STUDY_STEPS[quickStep];
+      document.getElementById('quick-step-indicator').innerText = `Langkah ${quickStep + 1} / ${QUICK_STUDY_STEPS.length}`;
+      
+      const container = document.getElementById('quick-study-content');
+      container.innerHTML = `
+        <h3 class="text-lg font-bold text-jawa-wood dark:text-amber-200">${step.title}</h3>
+        <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">${step.content}</p>
+      `;
+    }
+
+    function nextQuickStudyStep() {
+      playAudioFx('click');
+      if (quickStep < QUICK_STUDY_STEPS.length - 1) {
+        quickStep++;
+        renderQuickStep();
+      } else {
+        addXP(25, 'Belajar Cepat');
+        alert('⚡ Luar biasa! Kamu berhasil menyelesaikan Belajar Cepat (+25 XP)!');
+        navigateTo('dashboard');
+      }
+    }
+
+    const ALL_BADGES = [
+      { id: 'b1', icon: '🏆', title: 'Pemula Murda', desc: 'Mulai perjalanan belajar Aksara Murda' },
+      { id: 'b2', icon: '📜', title: 'Pengamat Aksara', desc: 'Membaca seluruh materi Aksara Murda' },
+      { id: 'b3', icon: '🧠', title: 'Detektif Murda', desc: 'Menyelesaikan Misi Detektif kesalahan' },
+      { id: 'b4', icon: '✍️', title: 'Penulis Murda', desc: 'Menyelesaikan 15 Soal Latihan' },
+      { id: 'b5', icon: '⚡', title: 'Murda Master', desc: 'Mendapat skor >= 90 di Kuis Akhir' },
+      { id: 'b6', icon: '👑', title: 'Raja Aksara', desc: 'Mencapai Level 5 (Jawara)' }
+    ];
+
+    function checkBadgesUnlock() {
+      if (!appState.unlockedBadges.includes('b2') && appState.xp >= 30) appState.unlockedBadges.push('b2');
+      if (!appState.unlockedBadges.includes('b3') && appState.xp >= 80) appState.unlockedBadges.push('b3');
+      if (!appState.unlockedBadges.includes('b4') && appState.xp >= 150) appState.unlockedBadges.push('b4');
+      if (!appState.unlockedBadges.includes('b5') && appState.quizHighScore >= 90) appState.unlockedBadges.push('b5');
+      if (!appState.unlockedBadges.includes('b6') && appState.xp >= 1000) appState.unlockedBadges.push('b6');
+    }
+
+    function renderBadgesGrid() {
+      const container = document.getElementById('badges-grid-container');
+      if (!container) return;
+
+      container.innerHTML = ALL_BADGES.map(b => {
+        const unlocked = appState.unlockedBadges.includes(b.id);
+        return `
+          <div class="p-4 rounded-2xl border ${unlocked ? 'bg-amber-50 dark:bg-amber-950/40 border-jawa-gold text-slate-800 dark:text-amber-100' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-50'} text-center space-y-2">
+            <div class="text-3xl">${b.icon}</div>
+            <div>
+              <h4 class="font-bold text-xs sm:text-sm">${b.title}</h4>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">${b.desc}</p>
+            </div>
+            <span class="inline-block text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${unlocked ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-300 text-slate-700'}">
+              ${unlocked ? 'Unlocked' : 'Terkunci'}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderLeaderboard() {
+      const dummy = [
+        { name: 'Budi Sasmita', xp: 850, lvl: 'Wasis', badge: '⚡ Murda Master' },
+        { name: 'Siti Rahmawati', xp: 720, lvl: 'Wasis', badge: '✍️ Penulis Murda' },
+        { name: 'Raden Mas Arya', xp: 480, lvl: 'Wira', badge: '🧠 Detektif Murda' },
+        { name: appState.userName || 'Siswa SMK', xp: appState.xp, lvl: calculateLevel(appState.xp).name, badge: '🏆 Pemula' },
+        { name: 'Dewi Lestari', xp: 120, lvl: 'Madya', badge: '📜 Pengamat' }
+      ];
+
+      dummy.sort((a, b) => b.xp - a.xp);
+
+      const tbody = document.getElementById('leaderboard-table-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = dummy.map((item, idx) => `
+        <tr class="${item.name === (appState.userName || 'Siswa SMK') ? 'bg-amber-100/60 dark:bg-amber-900/40' : ''}">
+          <td class="p-4 text-center font-bold text-amber-700 dark:text-amber-300">#${idx + 1}</td>
+          <td class="p-4 font-bold">${item.name}</td>
+          <td class="p-4">${item.lvl}</td>
+          <td class="p-4 text-jawa-gold font-bold">${item.xp} XP</td>
+          <td class="p-4 text-xs">${item.badge}</td>
+        </tr>
+      `).join('');
+    }
+
+    function openGuruAuthModal() {
+      document.getElementById('modal-guru-auth').classList.remove('hidden');
+    }
+    function closeGuruAuthModal() {
+      document.getElementById('modal-guru-auth').classList.add('hidden');
+    }
+    function verifyGuruPassword() {
+      const pass = document.getElementById('guru-pass-input').value;
+      if (pass === 'guru123' || pass === 'admin') {
+        closeGuruAuthModal();
+        navigateTo('guru');
+      } else {
+        alert('Kata sandi guru salah! (Default: guru123)');
+      }
+    }
+
+    function switchGuruTab(tab) {
+      document.getElementById('guru-sec-scores').classList.add('hidden');
+      document.getElementById('guru-sec-questions').classList.add('hidden');
+      document.getElementById(`guru-sec-${tab}`).classList.remove('hidden');
+    }
+
+    function renderGuruSection() {
+      // Render Scores
+      const scoresBody = document.getElementById('guru-scores-table');
+      const hist = appState.quizHistory || [];
+      if (hist.length === 0) {
+        scoresBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada riwayat kuis siswa.</td></tr>`;
+      } else {
+        scoresBody.innerHTML = hist.map((h, i) => `
+          <tr>
+            <td class="p-3">${h.date}</td>
+            <td class="p-3 font-bold">${appState.userName || 'Siswa SMK'}</td>
+            <td class="p-3 font-bold text-amber-600">${h.score}</td>
+            <td class="p-3">${h.badge}</td>
+            <td class="p-3"><button onclick="deleteScoreHist(${i})" class="text-rose-500 hover:underline">Hapus</button></td>
+          </tr>
+        `).join('');
+      }
+
+      // Render Active Questions
+      const qList = document.getElementById('guru-questions-list');
+      qList.innerHTML = KUIS_BANK.map((q, idx) => `
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 border flex justify-between items-center text-xs">
+          <div>
+            <span class="font-bold text-amber-700">Soal ${idx + 1}:</span> ${q.q}
+          </div>
+          <span class="text-slate-400">20 Soal Aktif</span>
+        </div>
+      `).join('');
+    }
+
+    function deleteScoreHist(idx) {
+      appState.quizHistory.splice(idx, 1);
+      saveState();
+      renderGuruSection();
+    }
+
+    function openAddQuestionModal() {
+      document.getElementById('modal-add-question').classList.remove('hidden');
+    }
+    function closeAddQuestionModal() {
+      document.getElementById('modal-add-question').classList.add('hidden');
+    }
+    function saveNewQuestion() {
+      const qText = document.getElementById('new-q-text').value;
+      const opt0 = document.getElementById('new-q-opt0').value;
+      const opt1 = document.getElementById('new-q-opt1').value;
+      const opt2 = document.getElementById('new-q-opt2').value;
+      const opt3 = document.getElementById('new-q-opt3').value;
+      const correct = parseInt(document.getElementById('new-q-correct').value);
+
+      if (!qText || !opt0 || !opt1) {
+        alert('Mohon lengkapi soal dan pilihan jawaban!');
+        return;
+      }
+
+      KUIS_BANK.push({
+        q: qText,
+        opt: [opt0, opt1, opt2, opt3],
+        ans: correct
+      });
+
+      alert('Soal baru berhasil ditambahkan!');
+      closeAddQuestionModal();
+      renderGuruSection();
+    }
+
+    function resetAllProgress() {
+      if (confirm('Apakah kamu yakin ingin mereset seluruh progress belajar?')) {
+        localStorage.removeItem('murdaverse_state');
+        appState = { ...DEFAULT_STATE };
+        saveState();
+        navigateTo('dashboard');
+      }
+    }
+
+    window.onload = function() {
+      updateUIStats();
+      // Default to splash screen if new student
+      if (appState.xp === 0) {
+        navigateTo('splash');
+      } else {
+        navigateTo('dashboard');
+      }
+    };
+  </script>
+</body>
+</html>
